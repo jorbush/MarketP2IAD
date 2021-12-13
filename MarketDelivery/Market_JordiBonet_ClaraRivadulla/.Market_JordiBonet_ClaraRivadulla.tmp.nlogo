@@ -10,8 +10,13 @@ turtles-own [
   ;; Properties costumers (collectors) and providers (galleries)
   own-paintings
   number-own-paintings
+  price-paintings
   name
   type-entity
+  money
+  ;; list preferences collectors
+  preferences-paintings
+  preferences-prices
 ]
 
 to setup
@@ -27,28 +32,34 @@ to setup-galleries
   let x-cordinates 26
   let y-cordinates 5
   create-turtles 1 [
-    set name " of Albacete"
+    set name "Gallery of Albacete"
     set type-entity "Gallery"
     ;; setup paintings
     set number-own-paintings 6
     set own-paintings (list "La Gioconda" "Guernica" "La noche estrellada" "Las meninas" "La joven de la perla" "La persistencia de la memoria")
-    ;; aspect
+    set price-paintings (list 100 70 73 68 60 89)
+    ;; view
     set color red
     set label word name "       "
     setxy x-cordinates y-cordinates
     set y-cordinates (y-cordinates - 10)
+    ;; money
+    set money 0
   ]
   create-turtles 1 [
-    set name "Museum of Madrid"
+    set name "Gallery of Madrid"
     set type-entity "Gallery"
     ;; setup paintings
     set number-own-paintings 6
     set own-paintings (list "La Gioconda" "Guernica" "La noche estrellada" "Las meninas" "La joven de la perla" "La persistencia de la memoria")
-    ;; aspect
+    set price-paintings (list 90 80 93 78 80 69)
+    ;; view
     set color green
     set label word name "       "
     setxy x-cordinates y-cordinates
     set y-cordinates (y-cordinates + 5)
+    ;; money
+    set money 0
   ]
 end
 
@@ -64,11 +75,15 @@ to setup-collectors
     ;; setup paintings
     set number-own-paintings 0
     set own-paintings []
-    ;; shape
+    ;; view
     set label word name "       "
     setxy x-cordinates y-cordinates
     set y-cordinates (y-cordinates - 5)
     set cont (cont + 1)
+    ;; money
+    set money random-float 500
+    if money < 100 [ set money (money + 100)]
+
   ]
 end
 
