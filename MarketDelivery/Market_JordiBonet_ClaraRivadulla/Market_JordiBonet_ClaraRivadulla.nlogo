@@ -32,10 +32,10 @@ end
 to setup-galleries
   set number-of-galleries 2
   set-default-shape turtles "house"
-  let x-cordinates 26
+  let x-cordinates 28
   let y-cordinates 5
   create-turtles 1 [
-    set name "Gallery of Albacete"
+    set name "Art gallery of Albacete"
     set type-entity "Gallery"
     ;; setup paintings
     set number-own-paintings 6
@@ -49,16 +49,16 @@ to setup-galleries
     ;; money
     set money 0
     ;; ads
-    set advertisement-to-sent "La joven de la perla at 60 billion euros, we practically gave it away."
+    set advertisement-to-sent "'Girl with a Pearl Earring' at 60 billion euros, we practically give it away."
     set boolean-ad-sent false
   ]
   create-turtles 1 [
-    set name "Gallery of Madrid"
+    set name "Art gallery of Madrid"
     set type-entity "Gallery"
     ;; setup paintings
     set number-own-paintings 6
-    set own-paintings (list "La Gioconda" "Guernica" "La noche estrellada" "Las meninas" "La joven de la perla" "La persistencia de la memoria")
-    set price-paintings (list 90 80 93 78 80 69)
+    set own-paintings (list "El nacimiento de Venus" "La última cena" "El beso" "Nighthawks" "El jardín de las delicias" "La gran ola de Kanagawa")
+    set price-paintings (list 90 80 62 78 80 69)
     ;; view
     set color green
     set label word name "       "
@@ -67,7 +67,7 @@ to setup-galleries
     ;; money
     set money 0
     ;; ads
-    set advertisement-to-sent "La persistencia de la memoria at 60 billion euros, we practically gave it away."
+    set advertisement-to-sent "'The kiss' at 62 billion euros, a true bargain!"
     set boolean-ad-sent false
   ]
 end
@@ -163,13 +163,12 @@ to process-ad [sender message receiver]
     ;; receiver (a collector) process the ad
   ]
 end
-
 @#$#@#$#@
 GRAPHICS-WINDOW
-210
-10
-647
-448
+37
+115
+474
+553
 -1
 -1
 13.0
@@ -193,10 +192,10 @@ ticks
 30.0
 
 BUTTON
-30
-42
-96
-75
+36
+66
+102
+99
 Setup
 setup
 NIL
@@ -211,9 +210,9 @@ NIL
 
 BUTTON
 108
-46
+66
 171
-79
+99
 Run
 go
 T
@@ -227,41 +226,6 @@ NIL
 1
 
 @#$#@#$#@
-## WHAT IS IT?
-
-(a general understanding of what the model is trying to show or explain)
-
-## HOW IT WORKS
-
-(what rules the agents use to create the overall behavior of the model)
-
-## HOW TO USE IT
-
-(how to use the model, including a description of each of the items in the Interface tab)
-
-## THINGS TO NOTICE
-
-(suggested things for the user to notice while running the model)
-
-## THINGS TO TRY
-
-(suggested things for the user to try to do (move sliders, switches, etc.) with the model)
-
-## EXTENDING THE MODEL
-
-(suggested things to add or change in the Code tab to make the model more complicated, detailed, accurate, etc.)
-
-## NETLOGO FEATURES
-
-(interesting or unusual features of NetLogo that the model uses, particularly in the Code tab; or where workarounds were needed for missing features)
-
-## RELATED MODELS
-
-(models in the NetLogo Models Library and elsewhere which are of related interest)
-
-## CREDITS AND REFERENCES
-
-(a reference to the model's URL on the web if it has one, as well as any other necessary credits, citations, and links)
 @#$#@#$#@
 default
 true
@@ -568,7 +532,7 @@ false
 Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 @#$#@#$#@
-NetLogo 6.2.0
+NetLogo 6.2.2
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@
