@@ -16,7 +16,10 @@ turtles-own [
   money
   ;; list preferences collectors
   preferences-paintings
-  preferences-prices
+  preference-price-max
+  ;; advertisement
+  advertisement-to-sent  ;; text ad
+  boolean-ad-sent        ;; boolean to kwow is the ad was sent
 ]
 
 to setup
@@ -45,6 +48,9 @@ to setup-galleries
     set y-cordinates (y-cordinates - 10)
     ;; money
     set money 0
+    ;; ads
+    set advertisement-to-sent "La joven de la perla at 60 billion euros, we practically gave it away."
+    set boolean-ad-sent false
   ]
   create-turtles 1 [
     set name "Gallery of Madrid"
@@ -60,6 +66,9 @@ to setup-galleries
     set y-cordinates (y-cordinates + 5)
     ;; money
     set money 0
+    ;; ads
+    set advertisement-to-sent "La persistencia de la memoria at 60 billion euros, we practically gave it away."
+    set boolean-ad-sent false
   ]
 end
 
@@ -71,7 +80,7 @@ to setup-collectors
   let y-cordinates 7
   create-turtles number-of-collectors [
     set name (word "Collector " cont )
-    set type-entity "Gallery"
+    set type-entity "Collector"
     ;; setup paintings
     set number-own-paintings 0
     set own-paintings []
@@ -84,17 +93,77 @@ to setup-collectors
     set money random-float 500
     if money < 100 [ set money (money + 100)]
     ;; set preferences
-
+    set preference-price-max 80
   ]
 end
 
 
 to go
-  ;; swap-messages            ;; We activate the messages sent in the previous iteration
-  ;; process-messages         ;; We process the messages
-  ;; move-car                 ;; move? do something?   ;; We act
+  swap-messages            ;; We activate the messages sent in the previous iteration
+  process-messages         ;; We process the messages
+  send-ads                 ;; Galeries send ads to collectors
   tick
 end
+
+to send-ads
+  ask turtles [
+    if type-entity = "Gallery" and boolean-ad-sent = false
+    [
+      ;; send message type ad
+      ;; send-message self "AD" "Can you give me your parking place?" collector
+      set boolean-ad-sent true
+    ]
+  ]
+
+end
+
+to negotiate
+  ask turtles [
+    if type-entity = "Collector"
+    [
+      ;; TODO negotiation
+    ]
+  ]
+end
+
+to swap-messages ;; all the next-messages become current-messages and we have the next-messages entry empty
+  ask turtles [
+    set current-messages next-messages
+    set next-messages []
+  ]
+end
+
+to process-messages ;; We process each message separately, for convenience, here we already divide the parts of each message (items)
+  ask turtles [
+    foreach current-messages [ message ->
+      process-message (item 0 message) (item 1 message) (item 2 message) (item 3 message);; Cada mensaje es una lista [emisor tipo mensaje receptor]
+    ]
+  ]
+end
+
+to send-message [recipient kind message receiver]
+  ;; We add the message to the message queue of the receiving agent
+  ;; (it is added to next-messages so that the receiver does not see it until the next iteration)
+  ask recipient [
+    ;; We put [sender, kind-of-message, message, receiver]
+    set next-messages lput (list myself kind message receiver) next-messages
+  ]
+end
+
+
+to process-message [sender kind message receiver]
+  if kind = "AD" [
+    process-ad sender message receiver
+  ]
+end
+
+to process-ad [sender message receiver]
+  print (word sender " AD: " message " to " receiver " at " ticks)
+  ask receiver[
+    ;; receiver (a collector) process the ad
+  ]
+end
+
 @#$#@#$#@
 GRAPHICS-WINDOW
 210
