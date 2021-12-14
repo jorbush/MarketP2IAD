@@ -43,6 +43,7 @@ to setup-paintings
   let i 0
   foreach paintings [
     create-turtles 1 [
+      set label word i "      "
       if i <= 5 [
         set color red
       ]
@@ -54,7 +55,7 @@ to setup-paintings
       set own-price 100
       setxy x-cordinates y-cordinates
       if i != 5 [
-        set x-cordinates (x-cordinates + 1)
+        set x-cordinates (x-cordinates + 2)
       ]
       if i = 5 [
         set x-cordinates 20
@@ -260,6 +261,16 @@ NIL
 NIL
 NIL
 NIL
+1
+
+TEXTBOX
+524
+270
+1089
+427
+0. 'The Tree of Life, Stoclet Frieze' by Gustav Klimt\n1. 'Jimson Weed' by Georgia O'Keeffe\n2. 'Oriental Poppies' by Georgia O'Keeffe\n3. 'Dream Caused by the Flight of a Bee Around a Pomegranate a Second Before Awakening' by Salvador Dalí\n4. 'The Elephants' by Salvador Dalí\n5. 'The Two Fridas' by Frida Kahlo\n6. 'The kiss' by Gustav Klimt\n7. 'Adoration of the Magi' by Hieronymus Bosch\n8. 'The Garden of Earthly Delights' by Hieronymus Bosch\n9. 'Black Iris' by Georgia O'Keeffe\n10. 'The Persistence of Memory' by Salvador Dalí\n11. 'Self-Portrait with Thorn Necklace and Hummingbird' by Frida Kahlo
+10
+0.0
 1
 
 @#$#@#$#@
