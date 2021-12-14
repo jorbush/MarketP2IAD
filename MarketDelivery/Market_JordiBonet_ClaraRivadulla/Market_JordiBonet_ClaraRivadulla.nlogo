@@ -27,6 +27,8 @@ turtles-own [
   boolean-ad-sent        ;; boolean to kwow is the ad was sent to all the collectors
   number-ad-receivers    ;; the current number of collector that receive the advertisement
   ads-received           ;; save in a collector's list the gallery's name that has already sent an ad to him
+  ad-attributes          ;; list of attributes of the ad's content
+  ad-values              ;; list of the attributes values
   ;; Properties paintings
   own-price
 ]
@@ -42,7 +44,7 @@ end
 to setup-paintings
   set number-of-paintings 12
   set paintings (list "'The Tree of Life, Stoclet Frieze' by Gustav Klimt" "'Jimson Weed' by Georgia O'Keeffe" "'Oriental Poppies' by Georgia O'Keeffe" "'Dream Caused by the Flight of a Bee Around a Pomegranate a Second Before Awakening' by Salvador Dalí" "'The Elephants' by Salvador Dalí" "'The Two Fridas' by Frida Kahlo" "'The kiss' by Gustav Klimt" "'Adoration of the Magi' by Hieronymus Bosch" "'The Garden of Earthly Delights' by Hieronymus Bosch" "'Black Iris' by Georgia O'Keeffe" "'The Persistence of Memory' by Salvador Dalí" "'Self-Portrait with Thorn Necklace and Hummingbird' by Frida Kahlo")
-  set authors (list "Gustav Klimt" "Georgia O'Keeffe" "Georgia O'Keeffe" "Salvador Dalí" "Salvador Dalí" "Frida Kahlo" "Gustav Klimt" "Hieronymus Bosch" "Hieronymus Bosch" "Georgia O'Keeffe" "Salvador Dalí" "Frida Kahlo")
+  set authors (list "Gustav Klimt" "Georgia O'Keeffe" "Salvador Dalí" "Frida Kahlo" "Hieronymus Bosch")
   set-default-shape turtles "square 2"
   let x-cordinates 20
   let y-cordinates 3
@@ -96,9 +98,11 @@ to setup-galleries
     ;; money
     set money 0
     ;; ads
-    set advertisement-to-sent "'The Tree of Life, Stoclet Frieze' at 60 billion euros, we practically give it away."
+    set advertisement-to-sent "'Jimson Weed' at 70 billion euros, we practically give it away."
     set boolean-ad-sent false
     set number-ad-receivers 0
+    set ad-attributes (list "price" "author")
+    set ad-values (list 70 "Georgia O'Keeffe")
     ;; We initialies the lists of received messages
     set next-messages []
   ]
@@ -120,6 +124,8 @@ to setup-galleries
     set advertisement-to-sent "'The kiss' at 60 billion euros, a true bargain!"
     set boolean-ad-sent false
     set number-ad-receivers 0
+    set ad-attributes (list "price" "author")
+    set ad-values (list 60 "Gustav Klimt")
     ;; We initialies the lists of received messages
     set next-messages []
   ]
@@ -149,7 +155,7 @@ to setup-collectors
     set preferences-attributes (list "price" "author")
     let price-preference random 100
     if price-preference < 50 [ set price-preference (price-preference + 50)]
-    let i random 10
+    let i random 5
     let author-preference item i authors
     set preferences-values (list price-preference author-preference)
     print(word "Preferences " name ": " preferences-attributes preferences-values)
@@ -187,7 +193,7 @@ to send-ads
           if not member? current-gallery-name [ ads-received ] of collector[
             ;; print (word "Self: " self " Gallery: " current-gallery " Collector: " collector)
             ;; print (word [ ads-received ] of collector " Collector: " collector not member? name [ ads-received ] of collector)
-            send-message current-gallery "AD" advertisement-to-sent collector
+            send-message current-gallery "AD" advertisement-to-sent collector [ ad-values ] of current-gallery
             ;; append gallery's name in collectors list
             ask collector [
               ;; print (word "ADD " ads-received " Collector: " collector)
@@ -235,32 +241,61 @@ to process-messages ;; We process each message separately, for convenience, here
     [
       ;; print (word self type-entity current-messages)
       foreach current-messages [ message ->
-        process-message (item 0 message) (item 1 message) (item 2 message) (item 3 message);; Cada mensaje es una lista [emisor tipo mensaje receptor]
+        process-message (item 0 message) (item 1 message) (item 2 message) (item 3 message) (item 4 message);; Cada mensaje es una lista [emisor tipo mensaje receptor list-values]
       ]
     ]
   ]
 end
 
-to send-message [recipient kind message receiver]
+to send-message [recipient kind message receiver list-values]
   ;; We add the message to the message queue of the receiving agent
   ;; (it is added to next-messages so that the receiver does not see it until the next iteration)
   ask recipient [
     ;; We put [sender, kind-of-message, message, receiver]
-    set next-messages lput (list recipient kind message receiver) next-messages
+    set next-messages lput (list recipient kind message receiver list-values) next-messages
   ]
 end
 
 
-to process-message [sender kind message receiver]
+to process-message [sender kind message receiver list-values]
   if kind = "AD" [
-    process-ad sender message receiver
+    process-ad sender message receiver list-values
+  ]
+  if kind = "INFORM" [
+    process-inform sender message receiver list-values
   ]
 end
 
-to process-ad [sender message receiver]
-  print (word [ name ] of sender " -> AD: " message " to " [ name ] of receiver " at " ticks " ticks")
+to process-ad [sender message receiver list-values]
+  print (word [ name ] of sender " -> AD: " message " with values " list-values " to " [ name ] of receiver " at " ticks " ticks")
   ask receiver[
     ;; receiver (a collector) process the ad
+    ;; return if is interested in the advertisement
+    ;; first check if both of them have the same attributes
+    let counter 0
+    let compatible true
+    foreach preferences-attributes [
+      if (item 0 preferences-attributes) != (item 0 [ ad-attributes ] of sender) [ set compatible false ]
+      set counter (counter + 1)
+    ]
+    ;; if the ad and the collector are compatible
+    if compatible [
+      ;; we see if the author is interesting for the costumer
+      ifelse (item 1 preferences-values) = (item 1 [ ad-values ] of sender)
+      [
+        send-message self "INFORM" "I'm interested, his art is amazing." sender true
+      ]
+      [
+        send-message self "INFORM" "I'm not interested, thanks." sender false
+      ]
+    ]
+  ]
+end
+
+to process-inform [sender message receiver list-values]
+  print (word [ name ] of sender " -> INFORM: " message " with values " list-values " to " [ name ] of receiver " at " ticks " ticks")
+  ask receiver[
+
   ]
 end
 @#$#@#$#@
