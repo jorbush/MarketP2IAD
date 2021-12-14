@@ -43,7 +43,7 @@ end
 
 to setup-paintings
   set number-of-paintings 12
-  set paintings (list "'The Tree of Life, Stoclet Frieze' by Gustav Klimt" "'Jimson Weed' by Georgia O'Keeffe" "'Oriental Poppies' by Georgia O'Keeffe" "'Dream Caused by the Flight of a Bee Around a Pomegranate a Second Before Awakening' by Salvador Dalí" "'The Elephants' by Salvador Dalí" "'The Two Fridas' by Frida Kahlo" "'The kiss' by Gustav Klimt" "'Adoration of the Magi' by Hieronymus Bosch" "'The Garden of Earthly Delights' by Hieronymus Bosch" "'Black Iris' by Georgia O'Keeffe" "'The Persistence of Memory' by Salvador Dalí" "'Self-Portrait with Thorn Necklace and Hummingbird' by Frida Kahlo")
+  set paintings (list "The Tree of Life, Stoclet Frieze" "Jimson Weed" "Oriental Poppies" "Dream Caused by the Flight of a Bee Around a Pomegranate a Second Before Awakening" "The Elephants" "The Two Fridas" "The kiss" "Adoration of the Magi" "The Garden of Earthly Delights" "Black Iris" "The Persistence of Memory" "Self-Portrait with Thorn Necklace and Hummingbird")
   set authors (list "Gustav Klimt" "Georgia O'Keeffe" "Salvador Dalí" "Frida Kahlo" "Hieronymus Bosch")
   set-default-shape turtles "square 2"
   let x-cordinates 20
@@ -101,8 +101,8 @@ to setup-galleries
     set advertisement-to-sent "'Jimson Weed' at 70 billion euros, we practically give it away."
     set boolean-ad-sent false
     set number-ad-receivers 0
-    set ad-attributes (list "price" "author")
-    set ad-values (list 70 "Georgia O'Keeffe")
+    set ad-attributes (list "price" "author" "title")
+    set ad-values (list 70 "Georgia O'Keeffe" "Jimson Weed")
     ;; We initialies the lists of received messages
     set next-messages []
   ]
@@ -124,8 +124,8 @@ to setup-galleries
     set advertisement-to-sent "'The kiss' at 60 billion euros, a true bargain!"
     set boolean-ad-sent false
     set number-ad-receivers 0
-    set ad-attributes (list "price" "author")
-    set ad-values (list 60 "Gustav Klimt")
+    set ad-attributes (list "price" "author" "title")
+    set ad-values (list 60 "Gustav Klimt" "The kiss")
     ;; We initialies the lists of received messages
     set next-messages []
   ]
@@ -264,6 +264,9 @@ to process-message [sender kind message receiver list-values]
   if kind = "INFORM" [
     process-inform sender message receiver list-values
   ]
+  if kind = "BUY" [
+    process-buy sender receiver (item 2 list-values) (item 1 list-values) (item 0 list-values)
+  ]
 end
 
 to process-ad [sender message receiver list-values]
@@ -283,10 +286,12 @@ to process-ad [sender message receiver list-values]
       ;; we see if the author is interesting for the costumer
       ifelse (item 1 preferences-values) = (item 1 [ ad-values ] of sender)
       [
-        send-message self "INFORM" "I'm interested, his art is amazing." sender true
+        send-message self "INFORM" "I'm interested, his/her art is amazing." sender list-values
+        send-message self "BUY" false sender list-values
+
       ]
       [
-        send-message self "INFORM" "I'm not interested, thanks." sender false
+        send-message self "INFORM" "I'm not interested, thanks." sender list-values
       ]
     ]
   ]
@@ -296,6 +301,17 @@ to process-inform [sender message receiver list-values]
   print (word [ name ] of sender " -> INFORM: " message " with values " list-values " to " [ name ] of receiver " at " ticks " ticks")
   ask receiver[
 
+  ]
+end
+
+to process-buy [collector gallery painting author price]
+  ask turtles [
+  if (type-entity = "Painting")
+    [
+      if (name = painting) [
+        print (word "Buying: " painting)
+      ]
+    ]
   ]
 end
 @#$#@#$#@
@@ -677,7 +693,7 @@ false
 Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 @#$#@#$#@
-NetLogo 6.2.0
+NetLogo 6.2.2
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@
