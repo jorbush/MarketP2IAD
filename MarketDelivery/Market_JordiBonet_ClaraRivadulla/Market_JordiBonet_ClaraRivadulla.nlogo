@@ -1,6 +1,8 @@
 globals [
   number-of-galleries
   number-of-collectors
+  number-of-paintings
+  paintings
 ]
 
 turtles-own [
@@ -20,6 +22,8 @@ turtles-own [
   ;; advertisement
   advertisement-to-sent  ;; text ad
   boolean-ad-sent        ;; boolean to kwow is the ad was sent
+  ;; Properties paintings
+  own-price
 ]
 
 to setup
@@ -27,6 +31,39 @@ to setup
   reset-ticks
   setup-galleries
   setup-collectors
+  setup-paintings
+end
+
+to setup-paintings
+  set number-of-paintings 12
+  set paintings (list "'The Tree of Life, Stoclet Frieze' by Gustav Klimt" "'Jimson Weed' by Georgia O'Keeffe" "'Oriental Poppies' by Georgia O'Keeffe" "'Dream Caused by the Flight of a Bee Around a Pomegranate a Second Before Awakening' by Salvador Dalí" "'The Elephants' by Salvador Dalí" "'The Two Fridas' by Frida Kahlo" "'The kiss' by Gustav Klimt" "'Adoration of the Magi' by Hieronymus Bosch" "'The Garden of Earthly Delights' by Hieronymus Bosch" "'Black Iris' by Georgia O'Keeffe" "'The Persistence of Memory' by Salvador Dalí" "'Self-Portrait with Thorn Necklace and Hummingbird' by Frida Kahlo")
+  set-default-shape turtles "square 2"
+  let x-cordinates 20
+  let y-cordinates 3
+  let i 0
+  foreach paintings [
+    create-turtles 1 [
+      if i <= 5 [
+        set color red
+      ]
+      if i > 5 [
+        set color green
+      ]
+      set name item i paintings
+      set type-entity "Painting"
+      set own-price 100
+      setxy x-cordinates y-cordinates
+      if i != 5 [
+        set x-cordinates (x-cordinates + 1)
+      ]
+      if i = 5 [
+        set x-cordinates 20
+        set y-cordinates 26
+      ]
+    ]
+    set i (i + 1)
+  ]
+
 end
 
 to setup-galleries
@@ -39,7 +76,7 @@ to setup-galleries
     set type-entity "Gallery"
     ;; setup paintings
     set number-own-paintings 6
-    set own-paintings (list "La Gioconda" "Guernica" "La noche estrellada" "Las meninas" "La joven de la perla" "La persistencia de la memoria")
+    set own-paintings (list "'The Tree of Life, Stoclet Frieze' by Gustav Klimt" "'Jimson Weed' by Georgia O'Keeffe" "'Oriental Poppies' by Georgia O'Keeffe" "'Dream Caused by the Flight of a Bee Around a Pomegranate a Second Before Awakening' by Salvador Dalí" "'The Elephants' by Salvador Dalí" "'The Two Fridas' by Frida Kahlo")
     set price-paintings (list 100 70 73 68 60 89)
     ;; view
     set color red
@@ -49,7 +86,7 @@ to setup-galleries
     ;; money
     set money 0
     ;; ads
-    set advertisement-to-sent "'Girl with a Pearl Earring' at 60 billion euros, we practically give it away."
+    set advertisement-to-sent "'The Tree of Life, Stoclet Frieze' at 60 billion euros, we practically give it away."
     set boolean-ad-sent false
   ]
   create-turtles 1 [
@@ -57,17 +94,17 @@ to setup-galleries
     set type-entity "Gallery"
     ;; setup paintings
     set number-own-paintings 6
-    set own-paintings (list "El nacimiento de Venus" "La última cena" "El beso" "Nighthawks" "El jardín de las delicias" "La gran ola de Kanagawa")
+    set own-paintings (list "'The kiss' by Gustav Klimt" "'Adoration of the Magi' by Hieronymus Bosch" "'The Garden of Earthly Delights' by Hieronymus Bosch" "'Black Iris' by Georgia O'Keeffe" "'The Persistence of Memory' by Salvador Dalí" "'Self-Portrait with Thorn Necklace and Hummingbird' by Frida Kahlo")
     set price-paintings (list 90 80 62 78 80 69)
     ;; view
     set color green
-    set label word name "       "
+    set label word name "          "
     setxy x-cordinates y-cordinates
     set y-cordinates (y-cordinates + 5)
     ;; money
     set money 0
     ;; ads
-    set advertisement-to-sent "'The kiss' at 62 billion euros, a true bargain!"
+    set advertisement-to-sent "'The kiss' at 60 billion euros, a true bargain!"
     set boolean-ad-sent false
   ]
 end
@@ -165,13 +202,13 @@ to process-ad [sender message receiver]
 end
 @#$#@#$#@
 GRAPHICS-WINDOW
-37
-115
-474
-553
+23
+19
+516
+513
 -1
 -1
-13.0
+14.7
 1
 10
 1
@@ -192,10 +229,10 @@ ticks
 30.0
 
 BUTTON
-36
-66
-102
-99
+524
+437
+601
+470
 Setup
 setup
 NIL
@@ -209,10 +246,10 @@ NIL
 1
 
 BUTTON
-108
-66
-171
-99
+524
+480
+601
+513
 Run
 go
 T
