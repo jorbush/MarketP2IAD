@@ -21,7 +21,9 @@ turtles-own [
   preference-price-max
   ;; advertisement
   advertisement-to-sent  ;; text ad
-  boolean-ad-sent        ;; boolean to kwow is the ad was sent
+  boolean-ad-sent        ;; boolean to kwow is the ad was sent to all the collectors
+  number-ad-receivers    ;; the current number of collector that receive the advertisement
+  ads-received           ;; save in a collector's list the gallery's name that has already sent an ad to him
   ;; Properties paintings
   own-price
 ]
@@ -61,8 +63,11 @@ to setup-paintings
         set x-cordinates 20
         set y-cordinates 26
       ]
+      ;; We initialies the lists of received messages
+      set next-messages []
     ]
     set i (i + 1)
+
   ]
 
 end
@@ -89,6 +94,9 @@ to setup-galleries
     ;; ads
     set advertisement-to-sent "'The Tree of Life, Stoclet Frieze' at 60 billion euros, we practically give it away."
     set boolean-ad-sent false
+    set number-ad-receivers 0
+    ;; We initialies the lists of received messages
+    set next-messages []
   ]
   create-turtles 1 [
     set name "Art gallery of Madrid"
@@ -107,6 +115,9 @@ to setup-galleries
     ;; ads
     set advertisement-to-sent "'The kiss' at 60 billion euros, a true bargain!"
     set boolean-ad-sent false
+    set number-ad-receivers 0
+    ;; We initialies the lists of received messages
+    set next-messages []
   ]
 end
 
@@ -132,6 +143,10 @@ to setup-collectors
     if money < 100 [ set money (money + 100)]
     ;; set preferences
     set preference-price-max 80
+    ;; We initialies the lists of received messages
+    set next-messages []
+    ;; for ads
+    set ads-received []
   ]
 end
 
@@ -148,8 +163,37 @@ to send-ads
     if type-entity = "Gallery" and boolean-ad-sent = false
     [
       ;; send message type ad
-      ;; send-message self "AD" "Can you give me your parking place?" collector
-      set boolean-ad-sent true
+      let current-gallery self
+      let current-gallery-name name
+      ;; receiver = all agents with role "Collector"
+      let possible-collector one-of turtles
+      if possible-collector != nobody [
+        ;; Send "advertisement" message to all the collectors
+        if [ type-entity ] of possible-collector = "Collector"
+        [
+          let collector possible-collector
+          ;; if this gallery hasn't already sent an ad to his collector
+          if not member? current-gallery-name [ ads-received ] of collector[
+            ;; print (word "Self: " self " Gallery: " current-gallery " Collector: " collector)
+            ;; print (word [ ads-received ] of collector " Collector: " collector not member? name [ ads-received ] of collector)
+            send-message current-gallery "AD" advertisement-to-sent collector
+            ;; append gallery's name in collectors list
+            ask collector [
+              ;; print (word "ADD " ads-received " Collector: " collector)
+              set ads-received lput current-gallery-name ads-received ;; insert-item 1 [ ads-received ] of possible-collector name
+              ;; print (word "ADDED " ads-received " Collector: " collector)
+            ]
+            ;; increase the counter of ad's receivers
+            set number-ad-receivers (number-ad-receivers + 1)
+          ]
+
+        ]
+      ]
+      ;; if all the collectors receive the ad
+      if number-ad-receivers >= number-of-collectors [
+        ;; set the advertisement as sent
+        set boolean-ad-sent true
+      ]
     ]
   ]
 
@@ -166,15 +210,22 @@ end
 
 to swap-messages ;; all the next-messages become current-messages and we have the next-messages entry empty
   ask turtles [
-    set current-messages next-messages
-    set next-messages []
+    if type-entity = "Gallery" or type-entity = "Collector"
+    [
+      set current-messages next-messages
+      set next-messages []
+    ]
   ]
 end
 
 to process-messages ;; We process each message separately, for convenience, here we already divide the parts of each message (items)
   ask turtles [
-    foreach current-messages [ message ->
-      process-message (item 0 message) (item 1 message) (item 2 message) (item 3 message);; Cada mensaje es una lista [emisor tipo mensaje receptor]
+    if type-entity = "Gallery" or type-entity = "Collector"
+    [
+      ;; print (word self type-entity current-messages)
+      foreach current-messages [ message ->
+        process-message (item 0 message) (item 1 message) (item 2 message) (item 3 message);; Cada mensaje es una lista [emisor tipo mensaje receptor]
+      ]
     ]
   ]
 end
@@ -184,7 +235,7 @@ to send-message [recipient kind message receiver]
   ;; (it is added to next-messages so that the receiver does not see it until the next iteration)
   ask recipient [
     ;; We put [sender, kind-of-message, message, receiver]
-    set next-messages lput (list myself kind message receiver) next-messages
+    set next-messages lput (list recipient kind message receiver) next-messages
   ]
 end
 
@@ -196,7 +247,7 @@ to process-message [sender kind message receiver]
 end
 
 to process-ad [sender message receiver]
-  print (word sender " AD: " message " to " receiver " at " ticks)
+  print (word [ name ] of sender " -> AD: " message " to " [ name ] of receiver " at " ticks " ticks")
   ask receiver[
     ;; receiver (a collector) process the ad
   ]
@@ -580,7 +631,7 @@ false
 Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 @#$#@#$#@
-NetLogo 6.2.2
+NetLogo 6.2.0
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@
