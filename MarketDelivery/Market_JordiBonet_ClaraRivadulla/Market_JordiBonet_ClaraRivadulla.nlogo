@@ -3,6 +3,7 @@ globals [
   number-of-collectors
   number-of-paintings
   paintings
+  authors
 ]
 
 turtles-own [
@@ -17,6 +18,8 @@ turtles-own [
   type-entity
   money
   ;; list preferences collectors
+  preferences-attributes
+  preferences-values
   preferences-paintings
   preference-price-max
   ;; advertisement
@@ -31,14 +34,15 @@ turtles-own [
 to setup
   clear-all
   reset-ticks
+  setup-paintings
   setup-galleries
   setup-collectors
-  setup-paintings
 end
 
 to setup-paintings
   set number-of-paintings 12
   set paintings (list "'The Tree of Life, Stoclet Frieze' by Gustav Klimt" "'Jimson Weed' by Georgia O'Keeffe" "'Oriental Poppies' by Georgia O'Keeffe" "'Dream Caused by the Flight of a Bee Around a Pomegranate a Second Before Awakening' by Salvador Dalí" "'The Elephants' by Salvador Dalí" "'The Two Fridas' by Frida Kahlo" "'The kiss' by Gustav Klimt" "'Adoration of the Magi' by Hieronymus Bosch" "'The Garden of Earthly Delights' by Hieronymus Bosch" "'Black Iris' by Georgia O'Keeffe" "'The Persistence of Memory' by Salvador Dalí" "'Self-Portrait with Thorn Necklace and Hummingbird' by Frida Kahlo")
+  set authors (list "Gustav Klimt" "Georgia O'Keeffe" "Georgia O'Keeffe" "Salvador Dalí" "Salvador Dalí" "Frida Kahlo" "Gustav Klimt" "Hieronymus Bosch" "Hieronymus Bosch" "Georgia O'Keeffe" "Salvador Dalí" "Frida Kahlo")
   set-default-shape turtles "square 2"
   let x-cordinates 20
   let y-cordinates 3
@@ -142,6 +146,13 @@ to setup-collectors
     set money random-float 500
     if money < 100 [ set money (money + 100)]
     ;; set preferences
+    set preferences-attributes (list "price" "author")
+    let price-preference random 100
+    if price-preference < 50 [ set price-preference (price-preference + 50)]
+    let i random 10
+    let author-preference item i authors
+    set preferences-values (list price-preference author-preference)
+    print(word "Preferences " name ": " preferences-attributes preferences-values)
     set preference-price-max 80
     ;; We initialies the lists of received messages
     set next-messages []
