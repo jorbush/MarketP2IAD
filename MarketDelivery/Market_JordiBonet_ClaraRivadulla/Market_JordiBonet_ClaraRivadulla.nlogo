@@ -29,6 +29,7 @@ turtles-own [
   ads-received           ;; save in a collector's list the gallery's name that has already sent an ad to him
   ad-attributes          ;; list of attributes of the ad's content
   ad-values              ;; list of the attributes values
+  ad-painting-title      ;; name of ad's painting
   ;; Properties paintings
   own-price
 ]
@@ -101,8 +102,9 @@ to setup-galleries
     set advertisement-to-sent "'Jimson Weed' at 70 billion euros, we practically give it away."
     set boolean-ad-sent false
     set number-ad-receivers 0
-    set ad-attributes (list "price" "author" "title")
-    set ad-values (list 70 "Georgia O'Keeffe" "Jimson Weed")
+    set ad-painting-title "Jimson Weed"
+    set ad-attributes (list "price" "author")
+    set ad-values (list 70 "Georgia O'Keeffe")
     ;; We initialies the lists of received messages
     set next-messages []
   ]
@@ -124,8 +126,9 @@ to setup-galleries
     set advertisement-to-sent "'The kiss' at 60 billion euros, a true bargain!"
     set boolean-ad-sent false
     set number-ad-receivers 0
-    set ad-attributes (list "price" "author" "title")
-    set ad-values (list 60 "Gustav Klimt" "The kiss")
+    set ad-painting-title "The kiss"
+    set ad-attributes (list "price" "author")
+    set ad-values (list 60 "Gustav Klimt")
     ;; We initialies the lists of received messages
     set next-messages []
   ]
@@ -265,7 +268,13 @@ to process-message [sender kind message receiver list-values]
     process-inform sender message receiver list-values
   ]
   if kind = "BUY" [
-    process-buy sender receiver (item 2 list-values) (item 1 list-values) (item 0 list-values)
+    process-buy sender message receiver list-values
+  ]
+  if kind = "SELL" [
+    process-sell sender message receiver list-values
+  ]
+  if kind = "SOLD" [
+    process-sold sender message receiver list-values
   ]
 end
 
@@ -278,7 +287,7 @@ to process-ad [sender message receiver list-values]
     let counter 0
     let compatible true
     foreach preferences-attributes [
-      if (item 0 preferences-attributes) != (item 0 [ ad-attributes ] of sender) [ set compatible false ]
+      if (item counter preferences-attributes) != (item counter [ ad-attributes ] of sender) [ set compatible false ]
       set counter (counter + 1)
     ]
     ;; if the ad and the collector are compatible
@@ -286,12 +295,10 @@ to process-ad [sender message receiver list-values]
       ;; we see if the author is interesting for the costumer
       ifelse (item 1 preferences-values) = (item 1 [ ad-values ] of sender)
       [
-        send-message self "INFORM" "I'm interested, his/her art is amazing." sender list-values
-        send-message self "BUY" false sender list-values
-
+        send-message self "INFORM" "I'm interested, his/her art is amazing." sender true
       ]
       [
-        send-message self "INFORM" "I'm not interested, thanks." sender list-values
+        send-message self "INFORM" "I'm not interested, thanks." sender false
       ]
     ]
   ]
@@ -300,18 +307,50 @@ end
 to process-inform [sender message receiver list-values]
   print (word [ name ] of sender " -> INFORM: " message " with values " list-values " to " [ name ] of receiver " at " ticks " ticks")
   ask receiver[
+    ;; if is interested
+    ifelse list-values = true [
+      let sell-message (word "I have the painting '" ad-painting-title "' at " item 0 ad-values " billion euros.")
+      send-message self "SELL" sell-message sender list-values
+    ]
+    [ ;; if is not interested asks for costumer's preferences
+      print(word name " asks for Collector's preferences.")
+    ]
 
   ]
 end
 
-to process-buy [collector gallery painting author price]
-  ask turtles [
-  if (type-entity = "Painting")
+to process-sell [sender message receiver list-values]
+  print (word [ name ] of sender " -> SELL: " message " with values " list-values " to " [ name ] of receiver " at " ticks " ticks")
+  ask receiver[
+    ;; print item 0 preferences-values
+    ;; print item 0 [ ad-values ] of sender
+    ;; print(item 0 preferences-values) >= (item 0 [ ad-values ] of sender)
+    let offer-price item 0 [ ad-values ] of sender
+    let preference-price item 0 preferences-values
+    ;; if the preference's price of the collector is equal or lower than the offer
+    ifelse preference-price >= offer-price
     [
-      if (name = painting) [
-        print (word "Buying: " painting)
-      ]
+      let buy-message (word "I will buy the painting '" [ ad-painting-title ] of sender "'")
+      ;; sends a buy message
+      send-message self "BUY" buy-message sender list-values
     ]
+    [ ;; else: negotiate the price
+      print(word "NEGOTATION offer: " offer-price " preference: " preference-price)
+    ]
+  ]
+end
+
+to process-buy [sender message receiver list-values]
+  print (word [ name ] of sender " -> BUY: " message " with values " list-values " to " [ name ] of receiver " at " ticks " ticks")
+  ask receiver[
+    send-message self "SOLD" ad-painting-title sender list-values
+  ]
+end
+
+to process-sold [sender message receiver list-values]
+  print (word [ name ] of sender " -> SOLD: " message " with values " list-values " to " [ name ] of receiver " at " ticks " ticks")
+  ask receiver[
+    print("PROCESS SOLD")
   ]
 end
 @#$#@#$#@
@@ -693,7 +732,7 @@ false
 Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 @#$#@#$#@
-NetLogo 6.2.2
+NetLogo 6.2.0
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@
