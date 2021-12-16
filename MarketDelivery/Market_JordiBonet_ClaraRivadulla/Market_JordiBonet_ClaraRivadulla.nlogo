@@ -14,6 +14,7 @@ turtles-own [
   next-messages    ;; List of messages for the next iteration
   ;; Properties costumers (collectors) and providers (galleries)
   own-paintings
+  own-authors
   number-own-paintings
   price-paintings
   name
@@ -97,6 +98,7 @@ to setup-galleries
     set number-own-paintings 6
     set own-paintings (list "The Tree of Life, Stoclet Frieze" "Jimson Weed" "Oriental Poppies" "Dream Caused by the Flight of a Bee Around a Pomegranate a Second Before Awakening" "The Elephants" "The Two Fridas")
     set price-paintings (list 100 70 73 68 60 89)
+    set own-authors (list "Gustav Klimt" "Georgia O'Keeffe" "Georgia O'Keeffe" "Salvador Dalí" "Salvador Dalí" "Frida Kahlo")
     ;; view
     set color red
     set label word name "       "
@@ -121,6 +123,7 @@ to setup-galleries
     set number-own-paintings 6
     set own-paintings (list "The kiss" "Adoration of the Magi" "The Garden of Earthly Delights" "Black Iris" "The Persistence of Memory" "Self-Portrait with Thorn Necklace and Hummingbird")
     set price-paintings (list 90 80 62 78 80 69)
+    set own-authors (list "Gustav Klimt" "Hieronymus Bosch" "Hieronymus Bosch" "Georgia O'Keeffe" "Salvador Dalí" "Frida Kahlo")
     ;; view
     set color green
     set label word name "          "
@@ -274,6 +277,12 @@ to process-message [sender kind message receiver list-values]
   if kind = "INFORM" [
     process-inform sender message receiver list-values
   ]
+  if kind = "REQUEST" [
+    process-request sender message receiver list-values
+  ]
+  if kind = "RESPONSE" [
+    process-response sender message receiver list-values
+  ]
   if kind = "BUY" [
     process-buy sender message receiver list-values
   ]
@@ -314,20 +323,56 @@ end
 to process-inform [sender message receiver list-values]
   print (word [ name ] of sender " -> INFORM: " message " with values " list-values " to " [ name ] of receiver " at " ticks " ticks")
   ask receiver[
-    ifelse message = "Sorry, we've already sold this painting."
-    [
-      ;; may be offer another
-      ;; list-values = title painting
+    ;; print (type-entity)
+    if type-entity = "Gallery" [
+      if message != "Sorry, we haven't paintings of this artist." [
+        ;; if is interested
+        ifelse message = "I'm interested, his/her art is amazing." [
+          let sell-message (word "I have the painting '" item 2 list-values "' at " item 0 list-values " billion euros.")
+          send-message self "SELL" sell-message sender list-values
+        ]
+        [ ;; if is not interested asks for costumer's preferences
+          ;; print(word name " asks for Collector's preferences.")
+          send-message self "REQUEST" "Can you tell me what you are looking for?" sender list-values
+        ]
+      ]
     ]
-    [
-      ;; if is interested
-      ifelse message = "I'm interested, his/her art is amazing." [
-        let sell-message (word "I have the painting '" ad-painting-title "' at " item 0 ad-values " billion euros.")
-        send-message self "SELL" sell-message sender list-values
-      ]
-      [ ;; if is not interested asks for costumer's preferences
-        print(word name " asks for Collector's preferences.")
-      ]
+
+  ]
+end
+
+
+to process-request [sender message receiver list-values]
+  print (word [ name ] of sender " -> REQUEST: " message " with values " list-values " to " [ name ] of receiver " at " ticks " ticks")
+  ask receiver[
+    print preferences-values
+    let preference-author item 1 preferences-values
+    let response-message (word "I'm looking for " preference-author "'s paintings.")
+    ;; set preferences-values (replace-item 1 list-values preference-author)
+    send-message self "RESPONSE" response-message sender preference-author
+  ]
+end
+
+to process-response [sender message receiver preference-author]
+  print (word [ name ] of sender " -> RESPONSE: " message " with author " preference-author " to " [ name ] of receiver " at " ticks " ticks")
+  ask receiver[
+    ;; The gallery has paintings of this author
+    ifelse member? preference-author own-authors [
+      ;; Get the title and price
+      let position-painting position preference-author own-authors
+      let price-painting item position-painting price-paintings
+      let title-painting item position-painting own-paintings
+      ;; Create a list of values
+      let list-values (list price-painting preference-author title-painting)
+      ;; SELL message
+      let sell-message (word "I have the painting '" item 2 list-values "' at " item 0 list-values " billion euros.")
+      send-message self "SELL" sell-message sender list-values
+    ]
+    [ ;; otherwise
+      ;; sorry message (inform)
+      let message-not-available "Sorry, we haven't paintings of this artist."
+      let list-values (list "" preference-author "")
+      send-message self "INFORM" message-not-available sender list-values
     ]
   ]
 end
