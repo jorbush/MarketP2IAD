@@ -109,8 +109,8 @@ to setup-galleries
     set boolean-ad-sent false
     set number-ad-receivers 0
     set ad-painting-title "Jimson Weed"
-    set ad-attributes (list "price" "author")
-    set ad-values (list 70 "Georgia O'Keeffe")
+    set ad-attributes (list "price" "author" "title")
+    set ad-values (list 70 "Georgia O'Keeffe" "Jimson Weed")
     ;; We initialies the lists of received messages
     set next-messages []
   ]
@@ -133,8 +133,8 @@ to setup-galleries
     set boolean-ad-sent false
     set number-ad-receivers 0
     set ad-painting-title "The kiss"
-    set ad-attributes (list "price" "author")
-    set ad-values (list 60 "Gustav Klimt")
+    set ad-attributes (list "price" "author" "title")
+    set ad-values (list 60 "Gustav Klimt" "The kiss")
     ;; We initialies the lists of received messages
     set next-messages []
   ]
@@ -166,7 +166,7 @@ to setup-collectors
     if price-preference < 50 [ set price-preference (price-preference + 50)]
     let i random 5
     let author-preference item i authors
-    set preferences-values (list price-preference author-preference)
+    set preferences-values (list price-preference author-preference "")
     print(word "Preferences " name ": " preferences-attributes preferences-values)
     set preference-price-max 80
     ;; We initialies the lists of received messages
@@ -302,10 +302,10 @@ to process-ad [sender message receiver list-values]
       ;; we see if the author is interesting for the costumer
       ifelse (item 1 preferences-values) = (item 1 [ ad-values ] of sender)
       [
-        send-message self "INFORM" "I'm interested, his/her art is amazing." sender true
+        send-message self "INFORM" "I'm interested, his/her art is amazing." sender list-values
       ]
       [
-        send-message self "INFORM" "I'm not interested, thanks." sender false
+        send-message self "INFORM" "I'm not interested, thanks." sender list-values
       ]
     ]
   ]
@@ -321,7 +321,7 @@ to process-inform [sender message receiver list-values]
     ]
     [
       ;; if is interested
-      ifelse list-values = true [
+      ifelse message = "I'm interested, his/her art is amazing." [
         let sell-message (word "I have the painting '" ad-painting-title "' at " item 0 ad-values " billion euros.")
         send-message self "SELL" sell-message sender list-values
       ]
@@ -338,32 +338,43 @@ to process-sell [sender message receiver list-values]
     ;; print item 0 preferences-values
     ;; print item 0 [ ad-values ] of sender
     ;; print(item 0 preferences-values) >= (item 0 [ ad-values ] of sender)
-    let offer-price item 0 [ ad-values ] of sender
+    let offer-price item 0 list-values
+    let offer-title item 2 list-values
     let preference-price item 0 preferences-values
     ;; if the preference's price of the collector is equal or lower than the offer
     ifelse preference-price >= offer-price
     [
-      let buy-message (word "I want to buy the painting '" [ ad-painting-title ] of sender "'")
+      let buy-message (word "I want to buy the painting '" offer-title "'")
       ;; sends a buy message
-      send-message self "BUY" buy-message sender [ ad-painting-title ] of sender
+      send-message self "BUY" buy-message sender list-values
     ]
     [ ;; else: negotiate the price
-      print(word "NEGOTATION offer: " offer-price " preference: " preference-price)
+      print(word "NEGOTIATION --> offer: " offer-price " preference: " preference-price)
+
+      ;; get medium price
+      let negotiation-price ((preference-price + offer-price) / 2)
+      print(word "            --> solution: " negotiation-price)
+      ;; BUY at this price
+      let buy-message (word "I want to buy the painting '" offer-title "'")
+      set list-values (replace-item 0 list-values negotiation-price)
+      send-message self "BUY" buy-message sender list-values
     ]
   ]
 end
 
-to process-buy [sender message receiver title-painting]
-  print (word [ name ] of sender " -> BUY: " message " with values " title-painting " to " [ name ] of receiver " at " ticks " ticks")
+to process-buy [sender message receiver list-values]
+  print (word [ name ] of sender " -> BUY: " message " with values " list-values " to " [ name ] of receiver " at " ticks " ticks")
   ask receiver[
-    ifelse member? ad-painting-title paintings-sold-to-process [
+    let title-painting item 2 list-values
+    let offer-price item 0 list-values ;; get painting's price
+    ;; if the painting is sold
+    ifelse member? title-painting paintings-sold-to-process [
       let message-not-available "Sorry, we've already sold this painting."
-      send-message self "INFORM" message-not-available sender title-painting
+      send-message self "INFORM" message-not-available sender list-values
     ]
-    [
-      let position-painting position title-painting own-paintings
-      let price-painting item position-painting price-paintings
-      send-message self "SOLD" title-painting sender price-painting
+    [ ;; otherwise
+      ;; send a SOLD petition (transaction)
+      send-message self "SOLD" title-painting sender offer-price
     ]
   ]
 end
