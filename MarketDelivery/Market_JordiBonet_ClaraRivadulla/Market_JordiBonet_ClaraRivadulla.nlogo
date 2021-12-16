@@ -4,6 +4,7 @@ globals [
   number-of-paintings
   paintings
   authors
+  paintings-sold-to-process
 ]
 
 turtles-own [
@@ -32,6 +33,8 @@ turtles-own [
   ad-painting-title      ;; name of ad's painting
   ;; Properties paintings
   own-price
+  sold
+  buyer
 ]
 
 to setup
@@ -46,6 +49,7 @@ to setup-paintings
   set number-of-paintings 12
   set paintings (list "The Tree of Life, Stoclet Frieze" "Jimson Weed" "Oriental Poppies" "Dream Caused by the Flight of a Bee Around a Pomegranate a Second Before Awakening" "The Elephants" "The Two Fridas" "The kiss" "Adoration of the Magi" "The Garden of Earthly Delights" "Black Iris" "The Persistence of Memory" "Self-Portrait with Thorn Necklace and Hummingbird")
   set authors (list "Gustav Klimt" "Georgia O'Keeffe" "Salvador Dalí" "Frida Kahlo" "Hieronymus Bosch")
+  set paintings-sold-to-process []
   set-default-shape turtles "square 2"
   let x-cordinates 20
   let y-cordinates 3
@@ -60,6 +64,8 @@ to setup-paintings
         set color green
       ]
       set name item i paintings
+      set sold false
+      set buyer ""
       set type-entity "Painting"
       set own-price 100
       setxy x-cordinates y-cordinates
@@ -175,6 +181,7 @@ to go
   swap-messages            ;; We activate the messages sent in the previous iteration
   process-messages         ;; We process the messages
   send-ads                 ;; Galeries send ads to collectors
+  process-paintings-sold   ;; Function to set as sold the paintings sold
   tick
 end
 
@@ -307,15 +314,21 @@ end
 to process-inform [sender message receiver list-values]
   print (word [ name ] of sender " -> INFORM: " message " with values " list-values " to " [ name ] of receiver " at " ticks " ticks")
   ask receiver[
-    ;; if is interested
-    ifelse list-values = true [
-      let sell-message (word "I have the painting '" ad-painting-title "' at " item 0 ad-values " billion euros.")
-      send-message self "SELL" sell-message sender list-values
+    ifelse message = "Sorry, we've already sold this painting."
+    [
+      ;; may be offer another
+      ;; list-values = title painting
     ]
-    [ ;; if is not interested asks for costumer's preferences
-      print(word name " asks for Collector's preferences.")
+    [
+      ;; if is interested
+      ifelse list-values = true [
+        let sell-message (word "I have the painting '" ad-painting-title "' at " item 0 ad-values " billion euros.")
+        send-message self "SELL" sell-message sender list-values
+      ]
+      [ ;; if is not interested asks for costumer's preferences
+        print(word name " asks for Collector's preferences.")
+      ]
     ]
-
   ]
 end
 
@@ -330,7 +343,7 @@ to process-sell [sender message receiver list-values]
     ;; if the preference's price of the collector is equal or lower than the offer
     ifelse preference-price >= offer-price
     [
-      let buy-message (word "I will buy the painting '" [ ad-painting-title ] of sender "'")
+      let buy-message (word "I want to buy the painting '" [ ad-painting-title ] of sender "'")
       ;; sends a buy message
       send-message self "BUY" buy-message sender list-values
     ]
@@ -343,7 +356,13 @@ end
 to process-buy [sender message receiver list-values]
   print (word [ name ] of sender " -> BUY: " message " with values " list-values " to " [ name ] of receiver " at " ticks " ticks")
   ask receiver[
-    send-message self "SOLD" ad-painting-title sender list-values
+    ifelse member? ad-painting-title paintings-sold-to-process [
+      let message-not-available "Sorry, we've already sold this painting."
+      send-message self "INFORM" message-not-available sender ad-painting-title
+    ]
+    [
+      send-message self "SOLD" ad-painting-title sender list-values
+    ]
   ]
 end
 
@@ -351,7 +370,35 @@ to process-sold [sender message receiver list-values]
   print (word [ name ] of sender " -> SOLD: " message " with values " list-values " to " [ name ] of receiver " at " ticks " ticks")
   ask receiver[
     print("PROCESS SOLD")
+    ;; message = title
+    set paintings-sold-to-process lput message paintings-sold-to-process
   ]
+end
+
+to process-paintings-sold
+  ask turtles [
+    ;; we see one turtle
+    let possible-painting-to-process one-of turtles
+    ;; if different the nobody
+    if possible-painting-to-process != nobody [
+      ;; and is a painting
+      if [ type-entity ] of possible-painting-to-process = "Painting"
+      [
+        let is-sold [ sold ] of possible-painting-to-process
+        let current-painting-name [ name ] of possible-painting-to-process
+        ;; if this painting is in the list to process
+        if not is-sold and member? current-painting-name paintings-sold-to-process
+        [
+          ;; set color gray
+          ask possible-painting-to-process [
+            set color gray
+            set sold true
+          ]
+        ]
+      ]
+    ]
+  ]
+
 end
 @#$#@#$#@
 GRAPHICS-WINDOW
