@@ -20,6 +20,7 @@ turtles-own [
   name
   type-entity
   money
+  initial-position
   ;; list preferences collectors
   preferences-attributes
   preferences-values
@@ -159,7 +160,9 @@ to setup-collectors
     set label word name "       "
     setxy x-cordinates y-cordinates
     set y-cordinates (y-cordinates - 5)
+    set initial-position (list x-cordinates y-cordinates)
     set cont (cont + 1)
+    set color one-of base-colors
     ;; money
     set money random 200
     if money < 100 [ set money (money + 100)]
@@ -324,7 +327,7 @@ to process-inform [sender message receiver list-values]
   print (word [ name ] of sender " -> INFORM: " message " with values " list-values " to " [ name ] of receiver " at " ticks " ticks")
   ask receiver[
     ;; print (type-entity)
-    if type-entity = "Gallery" [
+    ifelse type-entity = "Gallery" [
       if message != "Sorry, we haven't paintings of this artist." [
         ;; if is interested
         ifelse message = "I'm interested, his/her art is amazing." [
@@ -336,6 +339,10 @@ to process-inform [sender message receiver list-values]
           send-message self "REQUEST" "Can you tell me what you are looking for?" sender list-values
         ]
       ]
+    ]
+    [ ;; BUG: is a Collector (must be a Gallery)
+      ;; change xy collector's coordinates
+      setxy (item 0 initial-position) (item 1 initial-position + 5)
     ]
 
   ]
@@ -386,6 +393,8 @@ to process-sell [sender message receiver list-values]
     let offer-price item 0 list-values
     let offer-title item 2 list-values
     let preference-price item 0 preferences-values
+    ;; change xy collector's coordinates
+    setxy ([xcor] of sender - 2) ([ycor] of sender - 5)
     ;; if the preference's price of the collector is equal or lower than the offer
     ifelse preference-price >= offer-price
     [
@@ -440,6 +449,8 @@ to process-sold [sender message receiver price-painting]
       set money (money + price-painting)
       print(word "             --> " name "'s money = " gallery-money " + " price-painting " = " money " billion euros.")
     ]
+    ;; change xy collector's coordinates
+    setxy (item 0 initial-position) (item 1 initial-position + 5)
   ]
 end
 
