@@ -5,6 +5,7 @@ globals [
   paintings
   authors
   paintings-sold-to-process
+  buyers
 ]
 
 turtles-own [
@@ -34,7 +35,6 @@ turtles-own [
   ;; Properties paintings
   own-price
   sold
-  buyer
 ]
 
 to setup
@@ -50,6 +50,7 @@ to setup-paintings
   set paintings (list "The Tree of Life, Stoclet Frieze" "Jimson Weed" "Oriental Poppies" "Dream Caused by the Flight of a Bee Around a Pomegranate a Second Before Awakening" "The Elephants" "The Two Fridas" "The kiss" "Adoration of the Magi" "The Garden of Earthly Delights" "Black Iris" "The Persistence of Memory" "Self-Portrait with Thorn Necklace and Hummingbird")
   set authors (list "Gustav Klimt" "Georgia O'Keeffe" "Salvador Dalí" "Frida Kahlo" "Hieronymus Bosch")
   set paintings-sold-to-process []
+  set buyers []
   set-default-shape turtles "square 2"
   let x-cordinates 20
   let y-cordinates 3
@@ -65,7 +66,6 @@ to setup-paintings
       ]
       set name item i paintings
       set sold false
-      set buyer ""
       set type-entity "Painting"
       set own-price 100
       setxy x-cordinates y-cordinates
@@ -95,7 +95,7 @@ to setup-galleries
     set type-entity "Gallery"
     ;; setup paintings
     set number-own-paintings 6
-    set own-paintings (list "'The Tree of Life, Stoclet Frieze' by Gustav Klimt" "'Jimson Weed' by Georgia O'Keeffe" "'Oriental Poppies' by Georgia O'Keeffe" "'Dream Caused by the Flight of a Bee Around a Pomegranate a Second Before Awakening' by Salvador Dalí" "'The Elephants' by Salvador Dalí" "'The Two Fridas' by Frida Kahlo")
+    set own-paintings (list "The Tree of Life, Stoclet Frieze" "Jimson Weed" "Oriental Poppies" "Dream Caused by the Flight of a Bee Around a Pomegranate a Second Before Awakening" "The Elephants" "The Two Fridas")
     set price-paintings (list 100 70 73 68 60 89)
     ;; view
     set color red
@@ -119,7 +119,7 @@ to setup-galleries
     set type-entity "Gallery"
     ;; setup paintings
     set number-own-paintings 6
-    set own-paintings (list "'The kiss' by Gustav Klimt" "'Adoration of the Magi' by Hieronymus Bosch" "'The Garden of Earthly Delights' by Hieronymus Bosch" "'Black Iris' by Georgia O'Keeffe" "'The Persistence of Memory' by Salvador Dalí" "'Self-Portrait with Thorn Necklace and Hummingbird' by Frida Kahlo")
+    set own-paintings (list "The kiss" "Adoration of the Magi" "The Garden of Earthly Delights" "Black Iris" "The Persistence of Memory" "Self-Portrait with Thorn Necklace and Hummingbird")
     set price-paintings (list 90 80 62 78 80 69)
     ;; view
     set color green
@@ -345,7 +345,7 @@ to process-sell [sender message receiver list-values]
     [
       let buy-message (word "I want to buy the painting '" [ ad-painting-title ] of sender "'")
       ;; sends a buy message
-      send-message self "BUY" buy-message sender list-values
+      send-message self "BUY" buy-message sender [ ad-painting-title ] of sender
     ]
     [ ;; else: negotiate the price
       print(word "NEGOTATION offer: " offer-price " preference: " preference-price)
@@ -353,28 +353,36 @@ to process-sell [sender message receiver list-values]
   ]
 end
 
-to process-buy [sender message receiver list-values]
-  print (word [ name ] of sender " -> BUY: " message " with values " list-values " to " [ name ] of receiver " at " ticks " ticks")
+to process-buy [sender message receiver title-painting]
+  print (word [ name ] of sender " -> BUY: " message " with values " title-painting " to " [ name ] of receiver " at " ticks " ticks")
   ask receiver[
     ifelse member? ad-painting-title paintings-sold-to-process [
       let message-not-available "Sorry, we've already sold this painting."
-      send-message self "INFORM" message-not-available sender ad-painting-title
+      send-message self "INFORM" message-not-available sender title-painting
     ]
     [
-      send-message self "SOLD" ad-painting-title sender list-values
+      let position-painting position title-painting own-paintings
+      let price-painting item position-painting price-paintings
+      send-message self "SOLD" title-painting sender price-painting
     ]
   ]
 end
 
-to process-sold [sender message receiver list-values]
-  print (word [ name ] of sender " -> SOLD: " message " with values " list-values " to " [ name ] of receiver " at " ticks " ticks")
+to process-sold [sender message receiver price-painting]
+  print (word [ name ] of sender " -> SOLD: " message " with values " price-painting " to " [ name ] of receiver " at " ticks " ticks")
   ask receiver[
-    print("PROCESS SOLD")
     ;; message = title
+    set buyers lput name buyers
+    let initial-money money
+    set money (money - price-painting)
+    let finish-money money
     set paintings-sold-to-process lput message paintings-sold-to-process
+    set own-paintings lput message own-paintings
+    print(word "PROCESS SOLD --> " message " -> " name " money = " initial-money " - " price-painting " = " finish-money " billion euros. Paitings in property = " own-paintings)
   ]
 end
 
+;; Function to set the sold paint as gray
 to process-paintings-sold
   ask turtles [
     ;; we see one turtle
@@ -389,7 +397,7 @@ to process-paintings-sold
         ;; if this painting is in the list to process
         if not is-sold and member? current-painting-name paintings-sold-to-process
         [
-          ;; set color gray
+          ;; set color gray and sold
           ask possible-painting-to-process [
             set color gray
             set sold true
@@ -398,7 +406,22 @@ to process-paintings-sold
       ]
     ]
   ]
+end
 
+;; Function to fix the sold paint at the collector's coordinates
+to process-buyers
+  ask turtles [
+    ;; we see one turtle
+    let possible-buyer-to-process one-of turtles
+    ;; if different the nobody
+    if possible-buyer-to-process != nobody [
+      ;; and is a painting
+      if [ type-entity ] of possible-buyer-to-process = "Collector"
+      [
+
+      ]
+    ]
+  ]
 end
 @#$#@#$#@
 GRAPHICS-WINDOW
