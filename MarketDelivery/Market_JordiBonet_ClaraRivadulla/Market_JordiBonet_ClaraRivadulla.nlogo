@@ -158,7 +158,7 @@ to setup-collectors
     set y-cordinates (y-cordinates - 5)
     set cont (cont + 1)
     ;; money
-    set money random-float 500
+    set money random 200
     if money < 100 [ set money (money + 100)]
     ;; set preferences
     set preferences-attributes (list "price" "author")
@@ -378,7 +378,12 @@ to process-sold [sender message receiver price-painting]
     let finish-money money
     set paintings-sold-to-process lput message paintings-sold-to-process
     set own-paintings lput message own-paintings
-    print(word "PROCESS SOLD --> " message " -> " name " money = " initial-money " - " price-painting " = " finish-money " billion euros. Paitings in property = " own-paintings)
+    print(word "PROCESS SOLD --> " message " -> " name "'s money = " initial-money " - " price-painting " = " finish-money " billion euros. Paitings in property = " own-paintings)
+    ask sender [
+      let gallery-money money
+      set money (money + price-painting)
+      print(word "             --> " name "'s money = " gallery-money " + " price-painting " = " money " billion euros.")
+    ]
   ]
 end
 
