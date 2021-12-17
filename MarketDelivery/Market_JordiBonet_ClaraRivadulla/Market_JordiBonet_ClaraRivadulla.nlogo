@@ -232,15 +232,6 @@ to send-ads
 
 end
 
-to negotiate
-  ask turtles [
-    if type-entity = "Collector"
-    [
-      ;; TODO negotiation
-    ]
-  ]
-end
-
 to swap-messages ;; all the next-messages become current-messages and we have the next-messages entry empty
   ask turtles [
     if type-entity = "Gallery" or type-entity = "Collector"
@@ -475,22 +466,6 @@ to process-paintings-sold
             set sold true
           ]
         ]
-      ]
-    ]
-  ]
-end
-
-;; Function to fix the sold paint at the collector's coordinates
-to process-buyers
-  ask turtles [
-    ;; we see one turtle
-    let possible-buyer-to-process one-of turtles
-    ;; if different the nobody
-    if possible-buyer-to-process != nobody [
-      ;; and is a painting
-      if [ type-entity ] of possible-buyer-to-process = "Collector"
-      [
-
       ]
     ]
   ]
