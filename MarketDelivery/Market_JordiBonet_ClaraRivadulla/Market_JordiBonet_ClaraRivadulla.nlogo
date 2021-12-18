@@ -319,7 +319,7 @@ to process-inform [sender message receiver list-values]
   ask receiver[
     ;; print (type-entity)
     ifelse type-entity = "Gallery" [
-      if message != "Sorry, we haven't paintings of this artist." [
+      if message != "Sorry, we don't have any paintings by this artist." [
         ;; if is interested
         ifelse message = "I'm interested, his/her art is amazing." [
           let sell-message (word "I have the painting '" item 2 list-values "' at " item 0 list-values " billion euros.")
@@ -368,7 +368,7 @@ to process-response [sender message receiver preference-author]
     ]
     [ ;; otherwise
       ;; sorry message (inform)
-      let message-not-available "Sorry, we haven't paintings of this artist."
+      let message-not-available "Sorry, we don't have any paintings by this artist."
       let list-values (list "" preference-author "")
       send-message self "INFORM" message-not-available sender list-values
     ]
