@@ -1,0 +1,27 @@
+--- The interaction protocols
+
+
+--- Experiments and results
+
+	We have based the tests on the variation in the number of collectors. 
+	This is because we think it is the easiest value to make variable with a slider because the collectors, which at the beginning there are always 4 collectors, set their preferences randomly (the maximum price they are able to pay and the author they prefer).
+
+	-- Experiments with one collector
+
+		Each collector can get as maximum two paintings, because there are two art galleries that contact with them. 
+		As we can see in this picture, there are only two paintings sold (two squares in gray).
+
+	-- Experiments with six collectors
+
+		More collectors means more probability to sell paintings, which means better performance of the market.
+		As we can see in this picture, there are more squares with colour gray, which means that the art galleries have sold more paintings than the previous experiment.
+		
+
+--- Analyses and conclusions of the experiments you carried out. 
+
+	-- Does the global behaviour match your expectations? 
+
+	-- Why/ why not? 
+
+	-- What have you learned with these simulations
+
