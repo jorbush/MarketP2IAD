@@ -1,6 +1,6 @@
 globals [
   number-of-galleries
-  number-of-collectors
+  ;;number-of-collectors
   number-of-paintings
   paintings
   authors
@@ -145,11 +145,11 @@ to setup-galleries
 end
 
 to setup-collectors
-  set number-of-collectors 4
+  ;;set number-of-collectors 4
   let cont 1
   set-default-shape turtles "face happy"
   let x-cordinates 45
-  let y-cordinates 7
+  let y-cordinates 12
   create-turtles number-of-collectors [
     set name (word "Collector " cont )
     set type-entity "Collector"
@@ -541,6 +541,21 @@ TEXTBOX
 10
 0.0
 1
+
+SLIDER
+570
+164
+759
+197
+number-of-collectors
+number-of-collectors
+1
+6
+4.0
+1
+1
+NIL
+HORIZONTAL
 
 @#$#@#$#@
 @#$#@#$#@
