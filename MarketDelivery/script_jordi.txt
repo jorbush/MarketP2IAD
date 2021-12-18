@@ -15,13 +15,13 @@
 
 		More collectors means more probability to sell paintings, which means better performance of the market.
 		As we can see in this picture, there are more squares with colour gray, which means that the art galleries have sold more paintings than the previous experiment.
-		
+
 
 --- Analyses and conclusions of the experiments you carried out. 
 
-	-- Does the global behaviour match your expectations? 
+	The global behaviour matches with our expectations because we have designed a market between art galleries and collectors that communicates through message passing, with economic transactions when a collector buys a painting and even with the ability to negotiate according to his preferences. And all this is represented in the interface, with the limitations of NetLogo.
 
-	-- Why/ why not? 
+	With these simulations we have learned the importance of reaching the maximum number of clients in a market and matching their preferences to the products you have. In the beginning, when we had not implemented yet that the art gallery asked for the collector's preferences, when the collector said he was not interested, sales were much lower.
 
-	-- What have you learned with these simulations
+	In conclusion, the performance of our market is higher when there are more collectors.
 
