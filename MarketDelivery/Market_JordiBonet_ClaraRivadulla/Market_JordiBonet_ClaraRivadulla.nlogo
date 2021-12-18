@@ -545,15 +545,15 @@ TEXTBOX
 1
 
 SLIDER
-570
-164
-759
-197
+543
+124
+732
+157
 number-of-collectors
 number-of-collectors
 1
 6
-3.0
+1.0
 1
 1
 NIL
