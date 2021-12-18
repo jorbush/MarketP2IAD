@@ -430,11 +430,13 @@ to process-sold [sender message receiver price-painting]
     ;; message = title
     set buyers lput name buyers
     let initial-money money
-    set money (money - price-painting)
     let finish-money money
     set paintings-sold-to-process lput message paintings-sold-to-process
     set own-paintings lput message own-paintings
-    print(word "PROCESS SOLD --> " message " -> " name "'s money = " initial-money " - " price-painting " = " finish-money " billion euros. Paitings in property = " own-paintings)
+    ;; The payment will consist of a small fixed part plus the 1% of the purchase value.
+    let price-buyer (price-painting + (0.01 * price-painting))
+    set money (money - price-painting)
+    print(word "PROCESS SOLD --> " message " -> " name "'s money = " initial-money " - " price-buyer " = " finish-money " billion euros. Paitings in property = " own-paintings)
     ask sender [
       let gallery-money money
       set money (money + price-painting)
@@ -551,7 +553,7 @@ number-of-collectors
 number-of-collectors
 1
 6
-4.0
+3.0
 1
 1
 NIL
