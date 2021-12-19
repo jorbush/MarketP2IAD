@@ -1,27 +1,105 @@
 --- The interaction protocols
 
+	We have designed our communication protocol depending on the success 
+	or the failure of the advertisement presented by the art gallery.
+
+	A collector buys a painting if the advertisement's values, the author 
+	and the price, matches with collector'spreferences.
+
+	With each message they also pass a list of values that change 
+	depending of the behaviour, the kind of the message. This values 
+	can be all the preferences values, a price or an author.
+
+	The format of the messages is as in this example.
+
+	[explicar formato aseñalando]
+
+	-- Optimal cases
+
+		This diagram represents the optimal cases of our communication 
+		protocol, where the collector ends up buying a painting from 
+		both galleries.
+
+		The collector is interested in a painting if the author of the 
+		gallery's offer matches with his preference author. 
+		And, is this happens, buys the painting if its price is 
+		equal or lower than his maximum price preference. 
+		The art gallery will sell the painting if it's not sold.
+
+		[explicar diagrama aseñalando]
+
+		These ways, every agent is satisfied.  
+
+	-- Worst cases
+
+		This diagram represents the worst cases of our communication 
+		protocol.
+		One art gallery will not sell the painting because it has already 
+		been sold and the other because the collector's author preference 
+		does not match any of the authors of the paintings held by the 
+		gallery.
+
+		[explicar diagrama aseñalando]
+
+		In these cases, each agent is unsatisfied.
+
+
+	-- Negotiation
+
+		This diagram represents the negotiation between the art gallery 
+		and the collector:
+
+		The collector is interested and the art tries to sell the 
+		painting, but the price is higher than the collector prefers.
+
+		The collector then sends a buy request with the average of the 
+		prices. 
+
+		[explicar diagrama aseñalando]
+
+		Finally, the painting is sold at the negotiated price.
+
 
 --- Experiments and results
 
 	We have based the tests on the variation in the number of collectors. 
-	This is because we think it is the easiest value to make variable with a slider because the collectors, which at the beginning there are always 4 collectors, set their preferences randomly (the maximum price they are able to pay and the author they prefer).
+	This is because we think it is the easiest value to make variable 
+	with a slider because the collectors, which at the beginning there 
+	are always 4 collectors, set their preferences randomly (the maximum 
+	price they are able to pay and the author they prefer).
 
 	-- Experiments with one collector
 
-		Each collector can get as maximum two paintings, because there are two art galleries that contact with them. 
-		As we can see in this picture, there are only two paintings sold (two squares in gray).
+		Each collector can get as maximum two paintings, because there 
+		are two art galleries that contact with them. 
+		As we can see in this picture, there are only two paintings sold 
+		(two squares in gray).
 
 	-- Experiments with six collectors
 
-		More collectors means more probability to sell paintings, which means better performance of the market.
-		As we can see in this picture, there are more squares with colour gray, which means that the art galleries have sold more paintings than the previous experiment.
+		More collectors means more probability to sell paintings, 
+		which means better performance of the market.
+		As we can see in this picture, there are more squares with colour 
+		gray, which means that the art galleries have sold more paintings 
+		than the previous experiment.
 
 
 --- Analyses and conclusions of the experiments you carried out. 
 
-	The global behaviour matches with our expectations because we have designed a market between art galleries and collectors that communicates through message passing, with economic transactions when a collector buys a painting and even with the ability to negotiate according to his preferences. And all this is represented in the interface, with the limitations of NetLogo.
+	The global behaviour matches with our expectations because we have 
+	designed a market between art galleries and collectors that 
+	communicates through message passing, with economic transactions 
+	when a collector buys a painting and even with the ability to 
+	negotiate according to his preferences. And all this is represented 
+	in the interface, with the limitations of NetLogo.
 
-	With these simulations we have learned the importance of reaching the maximum number of clients in a market and matching their preferences to the products you have. In the beginning, when we had not implemented yet that the art gallery asked for the collector's preferences, when the collector said he was not interested, sales were much lower.
+	With these simulations we have learned the importance of reaching 
+	the maximum number of clients in a market and matching their 
+	preferences with the products a seller has. In the beginning, when we 
+	had not implemented yet that the art gallery asked for the collector's 
+	preferences, when the collector said he was not interested, sales 
+	were much lower.
 
-	In conclusion, the performance of our market is higher when there are more collectors.
+	In conclusion, the performance of our market is higher when there are 
+	more collectors.
 
