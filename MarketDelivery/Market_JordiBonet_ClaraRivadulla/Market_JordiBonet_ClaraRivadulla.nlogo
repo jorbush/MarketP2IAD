@@ -518,9 +518,9 @@ NIL
 1
 
 BUTTON
-524
+717
 480
-601
+794
 513
 Run
 go
@@ -545,10 +545,10 @@ TEXTBOX
 1
 
 SLIDER
-543
-124
-732
-157
+524
+480
+713
+513
 number-of-collectors
 number-of-collectors
 1
@@ -866,7 +866,7 @@ false
 Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
 @#$#@#$#@
-NetLogo 6.2.0
+NetLogo 6.2.2
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@
