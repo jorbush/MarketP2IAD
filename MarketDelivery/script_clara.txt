@@ -1,0 +1,22 @@
+--- Introduction
+
+We have decided to model our market as a commerce transaction between art galleries and collectors, where the sold / bought products are paintings. 
+
+
+--- Motivation and description of the simulated system
+
+
+--- The interface's design
+
+	-- Each gallery is represented by a house icon (red or green) on the left, and their paintings are represented by squares (again, red or green).
+	-- Each collector, which are represented by the smiling faces on the right, moves to the gallery where the painting they’re interested in is. 
+	-- Once they’re there, the collector and the gallery start dialoguing in order to make a fair deal. If the result is a sold, the costumer gets the painting (and its corresponding square is turned grey).  
+
+
+--- Future work
+
+The model could be improved by adding the following features:
+	-- Possibility to increase the number of collectors to a much higher value (thousands and thousands), as well as the number of galleries, so the art market would be a bit more realistically represented.
+	-- Add, in some way, an additional value to the paintings, because its value it’s not only monetary, but also subjective to the collector or the art gallery. 
+	-- Take galleries, collectors and paintings features from a real database, again to represent the market in a fairer way. 
+
